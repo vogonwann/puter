@@ -29,14 +29,7 @@ jobs:
         flatpak --system install -y flathub org.freedesktop.Sdk.Extension.rust-stable//23.08
 
     - name: Install and Configure Rust
-      run: |
-          curl --fail https://sh.rustup.rs -sSf | sh -y
-          source $HOME/.cargo/env
-          
-      # Optional: Make sure it's using stable
-    - name: Set Stable as default rust target
-      run: |
-          rustup default stable
+      uses: asdf-actions/rust@v1
 
     - name: Build project
       run: |
@@ -58,6 +51,17 @@ jobs:
             pkg-config --cflags gtk4 libadwaita-1 &&
             cargo build --release
           '
+    - name: Debug Cargo Build Output
+      run: |
+        echo "Checking Cargo output directory..."
+        find /tmp/build -type f -name "puter" || echo "Binary not found!"
+        find $HOME -type f -name "puter" 2>/dev/null || echo "Binary not found in home!"
+    
+    - name: Debug data directory
+      run: |
+          echo "Checking data directory..."
+          ls -la data || echo "data directory does not exist!"
+  
 
     - name: Prepare Flatpak build directory
       run: |
@@ -66,9 +70,9 @@ jobs:
         mkdir -p flatpak-build/share/icons/hicolor/scalable/apps
         mkdir -p flatpak-build/share/metainfo
         cp /github/home/.cache/.flatpak/org.gnome.Sdk/tmp/build/target/release/puter flatpak-build/bin/
-        cp lol.janjic.puter.desktop flatpak-build/share/applications/
-        cp data/icons/hicolor/scalable/apps/lol.janjic.puter.svg flatpak-build/share/icons/hicolor/scalable/apps/
-        cp lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
+        cp data/lol.janjic.puter.desktop flatpak-build/share/applications/
+        cp data/icons/lol.janjic.puter.svg flatpak-build/share/icons/hicolor/scalable/apps/
+        cp data/lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
 
     - name: Build Flatpak
       run: |
