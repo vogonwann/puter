@@ -52,6 +52,11 @@ jobs:
             cargo build --release
           '
 
+    - name: Debug Build Output
+      run: |
+        echo "Checking target directory..."
+        ls -lah /tmp/build/target/release || echo "Target directory not found!"
+
     - name: Prepare Flatpak build directory
       run: |
         mkdir -p flatpak-build/bin
