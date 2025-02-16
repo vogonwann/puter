@@ -8,46 +8,34 @@ on:
 
 jobs:
   flatpak:
-    name: "Flatpak"
     runs-on: ubuntu-latest
-    container:
-      image: bilelmoussaoui/flatpak-github-actions:gnome-47
-      options: --privileged
     steps:
     - uses: actions/checkout@v4
-    - name: Install dependencies
+    
+    - name: Install Flatpak
       run: |
-        dnf -y install gettext
-    - name: Setup Flatpak
+        sudo apt-get update
+        sudo apt-get install -y flatpak flatpak-builder
+    
+    - name: Add Flathub
       run: |
-        flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-        flatpak install -y flathub org.gnome.Platform//47 org.gnome.Sdk//47
-    - name: Build Flatpak
-      uses: flatpak/flatpak-github-actions/flatpak-builder@v6.3
-      with:
-        bundle: puter.flatpak
-        manifest-path: lol.janjic.puter.yml
-        cache-key: flatpak-builder-${{ github.sha }}
-
+        sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    
+    - name: Install SDK
+      run: |
+        sudo flatpak install -y flathub org.gnome.Platform//47
+        sudo flatpak install -y flathub org.gnome.Sdk//47
+        sudo flatpak install -y flathub org.freedesktop.Sdk.Extension.rust-stable//23.08
+    
     - name: Set up Rust
       uses: dtolnay/rust-toolchain@stable
-      with:
-        targets: ${{ matrix.arch == 'arm64' && 'aarch64-unknown-linux-gnu' || 'x86_64-unknown-linux-gnu' }}
-
-    - name: Install cross-compilation tools
-      if: matrix.arch == 'arm64'
-      run: |
-        sudo apt-get install -y gcc-aarch64-linux-gnu
-
-    - name: Build
-      run: |
-        if [ "${{ matrix.arch }}" = "arm64" ]; then
-          export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc
-          cargo build --release --target aarch64-unknown-linux-gnu
-        else
-          cargo build --release
-        fi
-
+    
+    - name: Install dependencies
+      run: sudo apt-get install -y gettext
+    
+    - name: Build project
+      run: cargo build --release
+    
     - name: Prepare Flatpak files
       run: |
         mkdir -p flatpak-build/bin
@@ -56,26 +44,21 @@ jobs:
         mkdir -p flatpak-build/share/metainfo
         mkdir -p flatpak-build/share/locale/sr_RS/LC_MESSAGES
         
-        if [ "${{ matrix.arch }}" = "arm64" ]; then
-          cp target/aarch64-unknown-linux-gnu/release/puter flatpak-build/bin/
-        else
-          cp target/release/puter flatpak-build/bin/
-        fi
-        
+        cp target/release/puter flatpak-build/bin/
         cp data/icons/hicolor/scalable/apps/lol.janjic.puter.svg flatpak-build/share/icons/hicolor/scalable/apps/
         cp lol.janjic.puter.desktop flatpak-build/share/applications/
         cp lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
         msgfmt -o puter.mo po/sr_RS/LC_MESSAGES/puter.po
         cp puter.mo flatpak-build/share/locale/sr_RS/LC_MESSAGES/
-
+    
     - name: Build Flatpak
       run: |
-        flatpak-builder --force-clean build-dir lol.janjic.puter.yml
-        flatpak-builder --repo=repo --force-clean build-dir lol.janjic.puter.yml
-        flatpak build-bundle repo puter-${{ matrix.arch }}.flatpak lol.janjic.puter
-
+        flatpak-builder --user --force-clean build-dir lol.janjic.puter.yml
+        flatpak-builder --user --repo=repo --force-clean build-dir lol.janjic.puter.yml
+        flatpak build-bundle repo puter.flatpak lol.janjic.puter
+    
     - name: Upload Flatpak Bundle
       uses: actions/upload-artifact@v4
       with:
-        name: puter-${{ matrix.arch }}.flatpak
-        path: puter-${{ matrix.arch }}.flatpak 
+        name: puter.flatpak
+        path: puter.flatpak 
