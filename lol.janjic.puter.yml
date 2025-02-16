@@ -45,4 +45,4 @@ modules:
       - install -Dm644 share/locale/sr_RS/LC_MESSAGES/puter.mo /app/share/locale/sr_RS/LC_MESSAGES/puter.mo
     sources:
       - type: dir
-        path: flatpak-build 
+        path: flatpak-build
