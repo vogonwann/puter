@@ -38,7 +38,7 @@ jobs:
     - name: Build Flatpak
       uses: flatpak/flatpak-github-actions/flatpak-builder@v6.3
       with:
-        bundle: puter.flatpak
+        bundle: puter-flatpak.flatpak
         manifest-path: lol.janjic.puter.yml
         cache-key: flatpak-builder-${{ github.sha }}
     
@@ -67,10 +67,10 @@ jobs:
       run: |
         flatpak-builder --user --force-clean build-dir lol.janjic.puter.yml
         flatpak-builder --user --repo=repo --force-clean build-dir lol.janjic.puter.yml
-        flatpak build-bundle repo puter.flatpak lol.janjic.puter
+        flatpak build-bundle repo puter-flatpak.flatpak lol.janjic.puter
     
     - name: Upload Flatpak Bundle
       uses: actions/upload-artifact@v4
       with:
         name: puter-flatpak
-        path: puter.flatpak 
+        path: puter-flatpak.flatpak 
