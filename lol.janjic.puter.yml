@@ -1,0 +1,49 @@
+app-id: lol.janjic.puter
+runtime: org.gnome.Platform
+runtime-version: '47'
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: puter
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+  env:
+    CARGO_HOME: /app/cargo
+    RUSTFLAGS: "--remap-path-prefix /app/cargo=/app"
+    CARGO_HTTP_MULTIPLEXING: "false"
+    CARGO_NET_RETRY: "10"
+    CARGO_HTTP_CHECK_REVOKE: "false"
+    CARGO_HTTP_SSL_VERSION: "tlsv1.2"
+    CARGO_REGISTRIES_CRATES_IO_INDEX: "sparse+https://13.32.103.114/"
+
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --filesystem=xdg-data/puter:create
+  - --env=RUST_LOG=puter=debug
+  - --env=G_MESSAGES_DEBUG=none
+  - --share=network
+
+modules:
+  - name: rust-deps
+    buildsystem: simple
+    build-commands:
+      - cargo --version
+    sources:
+      - type: git
+        url: https://github.com/flatpak/flatpak-builder-tools
+        branch: master
+
+  - name: puter
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 bin/puter /app/bin/puter
+      - install -Dm644 share/applications/lol.janjic.puter.desktop /app/share/applications/lol.janjic.puter.desktop
+      - install -Dm644 share/metainfo/lol.janjic.puter.metainfo.xml /app/share/metainfo/lol.janjic.puter.metainfo.xml
+      - install -Dm644 share/icons/hicolor/scalable/apps/lol.janjic.puter.svg /app/share/icons/hicolor/scalable/apps/lol.janjic.puter.svg
+      - install -Dm644 share/locale/sr_RS/LC_MESSAGES/puter.mo /app/share/locale/sr_RS/LC_MESSAGES/puter.mo
+    sources:
+      - type: dir
+        path: flatpak-build 

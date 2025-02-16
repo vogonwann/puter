@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" version="1.1" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background shape - slightly transparent for visual depth -->
+    <path d="M 24,40 L 104,24 C 108,24 112,28 112,32 L 96,96 C 96,100 92,104 88,104 L 16,88 C 12,88 8,84 8,80 L 16,44 C 16,40 20,36 24,40 Z" 
+          fill="#ffd75e" 
+          opacity="0.9"/>
+    
+    <!-- Main butter shape -->
+    <path d="M 32,36 L 96,24 C 100,24 104,28 104,32 L 88,88 C 88,92 84,96 80,96 L 24,84 C 20,84 16,80 16,76 L 24,40 C 24,36 28,32 32,36 Z" 
+          fill="#ffeb99"/>
+    
+    <!-- Melting drips -->
+    <path d="M 40,84 C 40,84 42,92 44,100 C 44,104 40,104 40,100 L 36,84 Z" 
+          fill="#ffeb99"/>
+    <path d="M 60,88 C 60,88 62,100 64,108 C 64,112 60,112 60,108 L 56,88 Z" 
+          fill="#ffeb99"/>
+    
+    <!-- Butter shine/highlight -->
+    <path d="M 40,40 L 80,32 C 84,32 84,36 80,36 L 40,44 C 36,44 36,40 40,40 Z" 
+          fill="white" 
+          opacity="0.5"/>
+</svg>
