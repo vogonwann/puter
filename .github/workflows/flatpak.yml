@@ -52,10 +52,10 @@ jobs:
             cargo build --release
           '
 
-    - name: Debug Build Output
+    - name: Check Cargo Target Dir
       run: |
-        echo "Checking build artifacts..."
-        find /tmp/build/target -type f -name "puter" || echo "Binary not found!"
+        echo "Cargo target directory:"
+        echo $CARGO_TARGET_DIR
 
     - name: Prepare Flatpak build directory
       run: |
