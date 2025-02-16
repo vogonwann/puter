@@ -54,8 +54,8 @@ jobs:
 
     - name: Debug Build Output
       run: |
-        echo "Checking target directory..."
-        ls -lah /tmp/build/target/release || echo "Target directory not found!"
+        echo "Checking build artifacts..."
+        find /tmp/build/target -type f -name "puter" || echo "Binary not found!"
 
     - name: Prepare Flatpak build directory
       run: |
