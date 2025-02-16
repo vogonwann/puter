@@ -9,29 +9,41 @@ on:
 jobs:
   flatpak:
     runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:gnome-47
+      options: --privileged
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install Flatpak
+    - name: Setup environment
       run: |
-        sudo apt-get update
-        sudo apt-get install -y flatpak flatpak-builder
+        mkdir -p /github/home/.local/share/flatpak
+        chown -R root:root /github/home/.local/share/flatpak
+        export XDG_DATA_HOME=/github/home/.local/share
     
     - name: Add Flathub
       run: |
-        sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-    
+        flatpak --system remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        
     - name: Install SDK
       run: |
-        sudo flatpak install -y flathub org.gnome.Platform//47
-        sudo flatpak install -y flathub org.gnome.Sdk//47
-        sudo flatpak install -y flathub org.freedesktop.Sdk.Extension.rust-stable//23.08
+        flatpak --system install -y flathub org.gnome.Platform//47
+        flatpak --system install -y flathub org.gnome.Sdk//47
+        flatpak --system install -y flathub org.freedesktop.Sdk.Extension.rust-stable//23.08
+    
+    - name: Install dependencies
+      run: |
+        dnf -y install gettext
+    
+    - name: Build Flatpak
+      uses: flatpak/flatpak-github-actions/flatpak-builder@v6.3
+      with:
+        bundle: puter.flatpak
+        manifest-path: lol.janjic.puter.yml
+        cache-key: flatpak-builder-${{ github.sha }}
     
     - name: Set up Rust
       uses: dtolnay/rust-toolchain@stable
-    
-    - name: Install dependencies
-      run: sudo apt-get install -y gettext
     
     - name: Build project
       run: cargo build --release
