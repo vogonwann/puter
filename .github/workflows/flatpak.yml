@@ -33,13 +33,16 @@ jobs:
 
     - name: Build project
       run: |
+        mkdir -p /tmp/build
+        chmod 777 /tmp/build
         flatpak run --command=sh \
           --runtime=org.gnome.Sdk//47 \
           --filesystem=host \
           --share=network \
           --env=PATH=$PATH:/usr/bin:/bin \
-          --env=CARGO_HOME=/github/home/.cargo \
-          --env=RUSTUP_HOME=/github/home/.rustup \
+          --env=CARGO_HOME=/tmp/build/.cargo \
+          --env=RUSTUP_HOME=/tmp/build/.rustup \
+          --env=CARGO_TARGET_DIR=/tmp/build/target \
           org.gnome.Sdk//47 -c '
             pkg-config --cflags gtk4 libadwaita-1 &&
             cargo build --release
@@ -51,7 +54,7 @@ jobs:
         mkdir -p flatpak-build/share/applications
         mkdir -p flatpak-build/share/icons/hicolor/scalable/apps
         mkdir -p flatpak-build/share/metainfo
-        cp target/release/puter flatpak-build/bin/
+        cp /tmp/build/target/release/puter flatpak-build/bin/
         cp data/lol.janjic.puter.desktop flatpak-build/share/applications/
         cp data/icons/lol.janjic.puter.svg flatpak-build/share/icons/hicolor/scalable/apps/
         cp data/lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
