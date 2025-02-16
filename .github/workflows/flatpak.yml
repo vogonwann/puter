@@ -35,15 +35,19 @@ jobs:
       run: |
         mkdir -p /tmp/build
         chmod 777 /tmp/build
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
         flatpak run --command=sh \
           --runtime=org.gnome.Sdk//47 \
           --filesystem=host \
           --share=network \
-          --env=PATH=$PATH:/usr/bin:/bin \
+          --env=PATH=$PATH:/usr/bin:/bin:$HOME/.cargo/bin \
           --env=CARGO_HOME=/tmp/build/.cargo \
           --env=RUSTUP_HOME=/tmp/build/.rustup \
           --env=CARGO_TARGET_DIR=/tmp/build/target \
           org.gnome.Sdk//47 -c '
+            curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &&
+            source /tmp/build/.cargo/env &&
+            rustup default stable &&
             pkg-config --cflags gtk4 libadwaita-1 &&
             cargo build --release
           '
