@@ -48,15 +48,11 @@ jobs:
             curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &&
             source /tmp/build/.cargo/env &&
             rustup default stable &&
-            cargo build --release || exit 1
+            pkg-config --cflags gtk4 libadwaita-1 &&
+            cargo build --release
           '
 
-    - name: Verify Build Output
-      run: |
-        ls -la /tmp/build/target/release
-
     - name: Prepare Flatpak build directory
-      if: success()
       run: |
         mkdir -p flatpak-build/bin
         mkdir -p flatpak-build/share/applications
@@ -68,21 +64,13 @@ jobs:
         cp data/lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
 
     - name: Build Flatpak
-      if: success()
       run: |
         flatpak-builder --user --force-clean build-dir lol.janjic.puter.yml
         flatpak-builder --user --repo=repo --force-clean build-dir lol.janjic.puter.yml
-        flatpak build-finish build-dir
-
-    - name: Package Flatpak
-      if: success()
-      run: |
-        flatpak build-export repo build-dir
-        flatpak build-bundle repo puter.flatpak com.example.puter 1.0
+        flatpak build-bundle repo puter-flatpak.flatpak lol.janjic.puter
 
     - name: Upload Flatpak Bundle
-      if: success()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: puter-flatpak
-        path: puter.flatpak
+        path: puter-flatpak.flatpak 
