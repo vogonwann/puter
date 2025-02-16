@@ -51,6 +51,7 @@ jobs:
             curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &&
             source /tmp/build/.cargo/env &&
             rustup default stable &&
+            rustup target add x86_64-unknown-linux-gnu &&
             pkg-config --cflags gtk4 libadwaita-1 &&
             cargo build --release
           '
