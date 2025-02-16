@@ -35,14 +35,17 @@ jobs:
       run: |
         flatpak run --command=sh \
           --runtime=org.gnome.Sdk//47 \
-          --sdk=org.freedesktop.Sdk.Extension.rust-stable//23.08 \
           --env=PATH=/usr/lib/sdk/rust-stable/bin:/usr/bin:/bin \
           --filesystem=host \
           --share=network \
           --env=CARGO_HOME=/run/build/puter/cargo \
           --env=RUSTUP_HOME=/run/build/puter/rustup \
-          org.gnome.Platform//47 -c '
-            source /usr/lib/sdk/rust-stable/enable.sh &&
+          --env=LD_LIBRARY_PATH=/usr/lib/sdk/rust-stable/lib \
+          --env=PKG_CONFIG_PATH=/usr/lib/sdk/rust-stable/lib/pkgconfig \
+          org.gnome.Sdk//47 -c '
+            if [ -f /usr/lib/sdk/rust-stable/enable.sh ]; then
+              source /usr/lib/sdk/rust-stable/enable.sh
+            fi
             cargo build --release
           '
 
