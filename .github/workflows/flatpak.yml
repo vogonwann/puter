@@ -33,7 +33,9 @@ jobs:
     
     - name: Install dependencies
       run: |
-        dnf -y install gettext gcc gcc-c++ make pkg-config glib2-devel
+        dnf -y install gettext gcc gcc-c++ make pkg-config \
+        glib2-devel gtk4-devel libadwaita-devel gobject-introspection-devel \
+        cairo-devel pango-devel atk-devel gdk-pixbuf2-devel
     
     - name: Set up Rust
       uses: dtolnay/rust-toolchain@stable
