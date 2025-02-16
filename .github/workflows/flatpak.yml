@@ -8,6 +8,9 @@ on:
 
 jobs:
   flatpak-builder:
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
     runs-on: ubuntu-latest
     container:
       image: bilelmoussaoui/flatpak-github-actions:gnome-45
@@ -18,8 +21,14 @@ jobs:
       run: |
         flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
         flatpak --user install -y flathub org.gnome.Platform//45 org.gnome.Sdk//45 org.freedesktop.Sdk.Extension.rust-stable
+    - name: Set up cross-compilation for ARM64
+      if: matrix.arch == 'arm64'
+      run: |
+        apt-get update
+        apt-get install -y gcc-aarch64-linux-gnu
     - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
       with:
-        bundle: puter.flatpak
+        bundle: puter-${{ matrix.arch }}.flatpak
         manifest-path: lol.janjic.puter.yml
-        cache-key: flatpak-builder-${{ github.sha }} 
+        cache-key: flatpak-builder-${{ github.sha }}-${{ matrix.arch }}
+        arch: ${{ matrix.arch }} 
