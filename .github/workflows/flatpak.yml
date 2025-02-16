@@ -41,7 +41,7 @@ jobs:
           --env=CARGO_HOME=/github/home/.cargo \
           --env=RUSTUP_HOME=/github/home/.rustup \
           org.gnome.Sdk//47 -c '
-            dnf install -y gcc gtk4-devel libadwaita-devel &&
+            pkg-config --cflags gtk4 libadwaita-1 &&
             cargo build --release
           '
 
