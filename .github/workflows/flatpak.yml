@@ -1,0 +1,21 @@
+name: Flatpak Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  flatpak-builder:
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:gnome-45
+      options: --privileged
+    steps:
+    - uses: actions/checkout@v4
+    - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+      with:
+        bundle: puter.flatpak
+        manifest-path: lol.janjic.puter.yml
+        cache-key: flatpak-builder-${{ github.sha }} 
