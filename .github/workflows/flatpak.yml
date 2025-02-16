@@ -30,7 +30,7 @@ jobs:
 
     - name: Install and Configure Rust
       run: |
-          curl --fail https://sh.rustup.rs -sSf | sh
+          curl --fail https://sh.rustup.rs -sSf | sh -y
           source $HOME/.cargo/env
           
       # Optional: Make sure it's using stable
