@@ -20,51 +20,19 @@ jobs:
         mkdir -p /github/home/.local/share/flatpak
         chown -R root:root /github/home/.local/share/flatpak
         export XDG_DATA_HOME=/github/home/.local/share
-    
-    - name: Add Flathub
-      run: |
         flatpak --system remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-        
+
     - name: Install SDK
       run: |
         flatpak --system install -y flathub org.gnome.Platform//47
         flatpak --system install -y flathub org.gnome.Sdk//47
         flatpak --system install -y flathub org.freedesktop.Sdk.Extension.rust-stable//23.08
-    
-    - name: Install dependencies
-      run: |
-        dnf -y install gettext gcc gcc-c++ make pkg-config \
-        glib2-devel gtk4-devel libadwaita-devel gobject-introspection-devel \
-        cairo-devel pango-devel atk-devel gdk-pixbuf2-devel \
-        gettext-devel libacl-devel libattr-devel
-    
-    - name: Set up Rust
-      uses: dtolnay/rust-toolchain@stable
-    
-    - name: Build project
-      run: cargo build --release
-    
-    - name: Prepare Flatpak files
-      run: |
-        mkdir -p flatpak-build/bin
-        mkdir -p flatpak-build/share/icons/hicolor/scalable/apps
-        mkdir -p flatpak-build/share/applications
-        mkdir -p flatpak-build/share/metainfo
-        mkdir -p flatpak-build/share/locale/sr_RS/LC_MESSAGES
-        
-        cp target/release/puter flatpak-build/bin/
-        cp data/icons/hicolor/scalable/apps/lol.janjic.puter.svg flatpak-build/share/icons/hicolor/scalable/apps/
-        cp lol.janjic.puter.desktop flatpak-build/share/applications/
-        cp lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
-        msgfmt -o puter.mo po/sr_RS/LC_MESSAGES/puter.po
-        cp puter.mo flatpak-build/share/locale/sr_RS/LC_MESSAGES/
 
-    - name: Build Flatpak
-      uses: flatpak/flatpak-github-actions/flatpak-builder@v6.3
-      with:
-        bundle: puter-flatpak.flatpak
-        manifest-path: lol.janjic.puter.yml
-        cache-key: flatpak-builder-${{ github.sha }}
+    - name: Build in Flatpak environment
+      run: |
+        flatpak-builder --user --force-clean build-dir lol.janjic.puter.yml
+        flatpak-builder --user --repo=repo --force-clean build-dir lol.janjic.puter.yml
+        flatpak build-bundle repo puter-flatpak.flatpak lol.janjic.puter
 
     - name: Upload Flatpak Bundle
       uses: actions/upload-artifact@v4
