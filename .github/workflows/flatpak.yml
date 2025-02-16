@@ -59,6 +59,10 @@ jobs:
 
     - name: Prepare Flatpak build directory
       run: |
+        mkdir -p flatpak-build/bin
+        mkdir -p flatpak-build/share/applications
+        mkdir -p flatpak-build/share/icons/hicolor/scalable/apps
+        mkdir -p flatpak-build/share/metainfo
         cp /github/home/.cache/.flatpak/org.gnome.Sdk/tmp/build/target/release/puter flatpak-build/bin/
         cp data/lol.janjic.puter.desktop flatpak-build/share/applications/
         cp data/icons/lol.janjic.puter.svg flatpak-build/share/icons/hicolor/scalable/apps/
