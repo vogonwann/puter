@@ -2,8 +2,7 @@ app-id: lol.janjic.puter
 runtime: org.gnome.Platform
 runtime-version: '47'
 sdk: org.gnome.Sdk
-sdk-extensions:
-  - org.freedesktop.Sdk.Extension.rust-stable//23.08/x86_64
+
 command: puter
 build-options:
   append-path: /usr/lib/sdk/rust-stable/bin
