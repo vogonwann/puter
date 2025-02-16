@@ -35,17 +35,13 @@ jobs:
       run: |
         flatpak run --command=sh \
           --runtime=org.gnome.Sdk//47 \
-          --env=PATH=/usr/lib/sdk/rust-stable/bin:/usr/bin:/bin \
           --filesystem=host \
           --share=network \
-          --env=CARGO_HOME=/run/build/puter/cargo \
-          --env=RUSTUP_HOME=/run/build/puter/rustup \
-          --env=LD_LIBRARY_PATH=/usr/lib/sdk/rust-stable/lib \
-          --env=PKG_CONFIG_PATH=/usr/lib/sdk/rust-stable/lib/pkgconfig \
+          --env=PATH=$PATH:/usr/bin:/bin \
+          --env=CARGO_HOME=/github/home/.cargo \
+          --env=RUSTUP_HOME=/github/home/.rustup \
           org.gnome.Sdk//47 -c '
-            if [ -f /usr/lib/sdk/rust-stable/enable.sh ]; then
-              source /usr/lib/sdk/rust-stable/enable.sh
-            fi
+            dnf install -y gcc gtk4-devel libadwaita-devel &&
             cargo build --release
           '
 
