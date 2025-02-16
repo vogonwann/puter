@@ -33,9 +33,17 @@ jobs:
 
     - name: Build project
       run: |
-        flatpak run --command=sh --runtime=org.gnome.Sdk//47 org.gnome.Platform//47 -c '
-          cargo build --release
-        '
+        flatpak run --command=sh \
+          --runtime=org.gnome.Sdk//47 \
+          --env=PATH=/usr/lib/sdk/rust-stable/bin:/usr/bin:/bin \
+          --filesystem=host \
+          --share=network \
+          --env=CARGO_HOME=/run/build/puter/cargo \
+          --env=RUSTUP_HOME=/run/build/puter/rustup \
+          org.gnome.Platform//47 -c '
+            source /usr/lib/sdk/rust-stable/enable.sh &&
+            cargo build --release
+          '
 
     - name: Prepare Flatpak build directory
       run: |
