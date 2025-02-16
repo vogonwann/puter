@@ -73,9 +73,9 @@ jobs:
         mkdir -p flatpak-build/share/icons/hicolor/scalable/apps
         mkdir -p flatpak-build/share/metainfo
         cp /github/home/.cache/.flatpak/org.gnome.Sdk/tmp/build/target/release/puter flatpak-build/bin/ || echo "Binary not found in /github/home/.cache/.flatpak/org.gnome.Sdk/tmp/build/target/release/"
-        cp data/lol.janjic.puter.desktop flatpak-build/share/applications/
-        cp data/icons/lol.janjic.puter.svg flatpak-build/share/icons/hicolor/scalable/apps/
-        cp data/lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
+        cp lol.janjic.puter.desktop flatpak-build/share/applications/
+        cp data/icons/hicolor/scalable/apps/lol.janjic.puter.svg flatpak-build/share/icons/hicolor/scalable/apps/
+        cp lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
 
     - name: Build Flatpak
       run: |
