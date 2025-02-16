@@ -35,13 +35,6 @@ jobs:
       run: |
         dnf -y install gettext
     
-    - name: Build Flatpak
-      uses: flatpak/flatpak-github-actions/flatpak-builder@v6.3
-      with:
-        bundle: puter-flatpak.flatpak
-        manifest-path: lol.janjic.puter.yml
-        cache-key: flatpak-builder-${{ github.sha }}
-    
     - name: Set up Rust
       uses: dtolnay/rust-toolchain@stable
     
@@ -62,13 +55,14 @@ jobs:
         cp lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
         msgfmt -o puter.mo po/sr_RS/LC_MESSAGES/puter.po
         cp puter.mo flatpak-build/share/locale/sr_RS/LC_MESSAGES/
-    
+
     - name: Build Flatpak
-      run: |
-        flatpak-builder --user --force-clean build-dir lol.janjic.puter.yml
-        flatpak-builder --user --repo=repo --force-clean build-dir lol.janjic.puter.yml
-        flatpak build-bundle repo puter-flatpak.flatpak lol.janjic.puter
-    
+      uses: flatpak/flatpak-github-actions/flatpak-builder@v6.3
+      with:
+        bundle: puter-flatpak.flatpak
+        manifest-path: lol.janjic.puter.yml
+        cache-key: flatpak-builder-${{ github.sha }}
+
     - name: Upload Flatpak Bundle
       uses: actions/upload-artifact@v4
       with:
