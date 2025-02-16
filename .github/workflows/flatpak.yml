@@ -51,17 +51,6 @@ jobs:
             pkg-config --cflags gtk4 libadwaita-1 &&
             cargo build --release
           '
-    - name: Debug Cargo Build Output
-      run: |
-        echo "Checking Cargo output directory..."
-        find /tmp/build -type f -name "puter" || echo "Binary not found!"
-        find $HOME -type f -name "puter" 2>/dev/null || echo "Binary not found in home!"
-    
-    - name: Debug data directory
-      run: |
-        echo "Checking data directory..."
-        ls -la data || echo "data directory does not exist!"
-  
 
     - name: Prepare Flatpak build directory
       run: |
