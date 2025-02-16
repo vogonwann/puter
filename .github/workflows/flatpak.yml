@@ -33,7 +33,7 @@ jobs:
     
     - name: Install dependencies
       run: |
-        dnf -y install gettext
+        dnf -y install gettext gcc gcc-c++ make
     
     - name: Set up Rust
       uses: dtolnay/rust-toolchain@stable
