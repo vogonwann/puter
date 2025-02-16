@@ -28,7 +28,27 @@ jobs:
         flatpak --system install -y flathub org.gnome.Sdk//47
         flatpak --system install -y flathub org.freedesktop.Sdk.Extension.rust-stable//23.08
 
-    - name: Build in Flatpak environment
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Build project
+      run: |
+        flatpak run --command=sh --runtime=org.gnome.Sdk//47 org.gnome.Platform//47 -c '
+          cargo build --release
+        '
+
+    - name: Prepare Flatpak build directory
+      run: |
+        mkdir -p flatpak-build/bin
+        mkdir -p flatpak-build/share/applications
+        mkdir -p flatpak-build/share/icons/hicolor/scalable/apps
+        mkdir -p flatpak-build/share/metainfo
+        cp target/release/puter flatpak-build/bin/
+        cp data/lol.janjic.puter.desktop flatpak-build/share/applications/
+        cp data/icons/lol.janjic.puter.svg flatpak-build/share/icons/hicolor/scalable/apps/
+        cp data/lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
+
+    - name: Build Flatpak
       run: |
         flatpak-builder --user --force-clean build-dir lol.janjic.puter.yml
         flatpak-builder --user --repo=repo --force-clean build-dir lol.janjic.puter.yml
