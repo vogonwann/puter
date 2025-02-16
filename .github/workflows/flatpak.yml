@@ -19,13 +19,13 @@ jobs:
     - uses: actions/checkout@v4
     - name: Set up Flatpak environment
       run: |
-        flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-        flatpak --user install -y flathub org.gnome.Platform//45 org.gnome.Sdk//45 org.freedesktop.Sdk.Extension.rust-stable
+        sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        sudo flatpak install -y flathub org.gnome.Platform//45 org.gnome.Sdk//45 org.freedesktop.Sdk.Extension.rust-stable
     - name: Set up cross-compilation for ARM64
       if: matrix.arch == 'arm64'
       run: |
-        apt-get update
-        apt-get install -y gcc-aarch64-linux-gnu
+        sudo apt-get update
+        sudo apt-get install -y gcc-aarch64-linux-gnu
     - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
       with:
         bundle: puter-${{ matrix.arch }}.flatpak
