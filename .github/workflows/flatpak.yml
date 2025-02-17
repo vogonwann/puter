@@ -28,11 +28,18 @@ jobs:
         flatpak --system install -y flathub org.gnome.Sdk//47
         flatpak --system install -y flathub org.freedesktop.Sdk.Extension.rust-stable//23.08
 
-    - name: Install and Configure Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        override: true
+    - name: Install Rust in Flatpak
+      run: |
+        flatpak run --command=sh \
+          --runtime=org.gnome.Sdk//47 \
+          --filesystem=host \
+          --share=network \
+          org.gnome.Sdk//47 -c '
+            curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &&
+            source $HOME/.cargo/env &&
+            rustup default stable &&
+            rustup target add x86_64-unknown-linux-gnu
+          '
 
     - name: Build project
       run: |
@@ -48,11 +55,7 @@ jobs:
           --env=RUSTUP_HOME=/tmp/build/.rustup \
           --env=CARGO_TARGET_DIR=/tmp/build/target \
           org.gnome.Sdk//47 -c '
-            curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &&
-            source /tmp/build/.cargo/env &&
-            rustup default stable &&
-            rustup target add x86_64-unknown-linux-gnu &&
-            pkg-config --cflags gtk4 libadwaita-1 &&
+            source $HOME/.cargo/env &&
             cargo build --release
           '
 
