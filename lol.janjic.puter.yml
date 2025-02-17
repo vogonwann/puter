@@ -3,7 +3,7 @@ runtime: org.gnome.Platform
 runtime-version: '47'
 sdk: org.gnome.Sdk
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.rust-stable
+  - org.freedesktop.Sdk.Extension.rust-stable//23.08
 
 command: puter
 build-options:
@@ -40,7 +40,7 @@ modules:
   - name: puter
     buildsystem: simple
     build-commands:
-      - install -Dm755 bin/puter /app/bin/puter
+      - install -Dm755 target/release/puter /app/bin/puter
       - install -Dm644 lol.janjic.puter.desktop /app/share/applications/lol.janjic.puter.desktop
       - install -Dm644 lol.janjic.puter.metainfo.xml /app/share/metainfo/lol.janjic.puter.metainfo.xml
       - install -Dm644 data/icons/hicolor/scalable/apps/lol.janjic.puter.svg /app/share/icons/hicolor/scalable/apps/lol.janjic.puter.svg
