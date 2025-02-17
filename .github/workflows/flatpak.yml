@@ -1,85 +1,55 @@
-name: Flatpak Build
+name: Build and Package Puter
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  flatpak:
+  build:
     runs-on: ubuntu-latest
-    container:
-      image: rust:latest
-      options: --privileged
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Install Flatpak
-      run: |
-        apt-get update && apt-get install -y flatpak
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup environment
-      run: |
-        mkdir -p /github/home/.local/share/flatpak
-        chown -R root:root /github/home/.local/share/flatpak
-        export XDG_DATA_HOME=/github/home/.local/share
-        flatpak --system remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      - name: Set up Flatpak
+        run: |
+          sudo apt update
+          sudo apt install -y flatpak flatpak-builder
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install -y flathub org.gnome.Sdk//24.08 org.gnome.Platform//24.08 org.freedesktop.Sdk.Extension.rust-stable//24.08
 
-    - name: Install SDK
-      run: |
-        flatpak --system install -y flathub org.gnome.Platform//47
-        flatpak --system install -y flathub org.gnome.Sdk//47
-        flatpak --system install -y flathub org.freedesktop.Sdk.Extension.rust-stable//23.08
+      - name: Set up Rust
+        run: |
+          rustup show
+          rustc --version
+          cargo --version
 
-    - name: Build project
-      run: |
-        mkdir -p /tmp/build/target
-        chmod 777 /tmp/build/target
-        export CARGO_TARGET_DIR=/tmp/build/target
-        flatpak run --command=sh \
-          --runtime=org.gnome.Sdk//47 \
-          --filesystem=host \
-          --share=network \
-          --env=PATH=$PATH:/usr/bin:/bin:/usr/local/cargo/bin \
-          --env=CARGO_HOME=/usr/local/cargo \
-          --env=RUSTUP_HOME=/usr/local/rustup \
-          --env=CARGO_TARGET_DIR=/tmp/build/target \
-          org.gnome.Sdk//47 -c '
-            rustup target add x86_64-unknown-linux-gnu &&
-            cargo build --release
-          '
+      - name: Build Rust project
+        run: |
+          cargo build --release
+          mkdir -p flatpak-build/bin
+          cp target/release/puter flatpak-build/bin/
 
-    - name: Debug Cargo Build Output
-      run: |
-        echo "Checking Cargo output directory..."
-        find /github/home/.cache/.flatpak/org.gnome.Sdk/tmp/build -type f -name "puter" || echo "Binary not found!"
-        find $HOME -type f -name "puter" 2>/dev/null || echo "Binary not found in home!"
-    
-    - name: Debug data directory
-      run: |
-        echo "Checking data directory..."
-        ls -la data || echo "data directory does not exist!"
-  
-    - name: Prepare Flatpak build directory
-      run: |
-        mkdir -p flatpak-build/bin
-        mkdir -p flatpak-build/share/applications
-        mkdir -p flatpak-build/share/icons/hicolor/scalable/apps
-        mkdir -p flatpak-build/share/metainfo
-        cp /github/home/.cache/.flatpak/org.gnome.Sdk/tmp/build/target/release/puter flatpak-build/bin/ || echo "Binary not found in /github/home/.cache/.flatpak/org.gnome.Sdk/tmp/build/target/release/"
-        cp lol.janjic.puter.desktop flatpak-build/share/applications/
-        cp data/icons/hicolor/scalable/apps/lol.janjic.puter.svg flatpak-build/share/icons/hicolor/scalable/apps/
-        cp lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
+      - name: Prepare Flatpak build directory
+        run: |
+          mkdir -p flatpak-build/share/applications
+          mkdir -p flatpak-build/share/icons/hicolor/scalable/apps
+          mkdir -p flatpak-build/share/metainfo
+          cp lol.janjic.puter.desktop flatpak-build/share/applications/
+          cp data/icons/hicolor/scalable/apps/lol.janjic.puter.svg flatpak-build/share/icons/hicolor/scalable/apps/
+          cp lol.janjic.puter.metainfo.xml flatpak-build/share/metainfo/
 
-    - name: Build Flatpak
-      run: |
-        flatpak-builder --user --force-clean build-dir lol.janjic.puter.yml
-        flatpak-builder --user --repo=repo --force-clean build-dir lol.janjic.puter.yml
-        flatpak build-bundle repo puter-flatpak.flatpak lol.janjic.puter
+      - name: Build Flatpak package
+        run: |
+          flatpak-builder --user --force-clean build-dir lol.janjic.puter.yml
 
-    - name: Upload Flatpak Bundle
-      uses: actions/upload-artifact@v4
-      with:
-        name: puter-flatpak
-        path: puter-flatpak.flatpak
+      - name: Upload Flatpak artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: puter-flatpak
+          path: build-dir
