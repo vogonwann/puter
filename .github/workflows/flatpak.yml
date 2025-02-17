@@ -35,10 +35,10 @@ jobs:
           --filesystem=host \
           --share=network \
           org.gnome.Sdk//47 -c '
-            mkdir -p $HOME/.cargo/bin &&
-            chmod -R 777 $HOME/.cargo &&
-            curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &&
-            source $HOME/.cargo/env &&
+            mkdir -p /tmp/cargo/bin &&
+            chmod -R 777 /tmp/cargo &&
+            curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path --profile minimal --default-toolchain stable --component rust-src &&
+            source /tmp/cargo/env &&
             rustup default stable &&
             rustup target add x86_64-unknown-linux-gnu
           '
@@ -52,12 +52,12 @@ jobs:
           --runtime=org.gnome.Sdk//47 \
           --filesystem=host \
           --share=network \
-          --env=PATH=$PATH:/usr/bin:/bin:$HOME/.cargo/bin \
-          --env=CARGO_HOME=/tmp/build/.cargo \
-          --env=RUSTUP_HOME=/tmp/build/.rustup \
+          --env=PATH=$PATH:/usr/bin:/bin:/tmp/cargo/bin \
+          --env=CARGO_HOME=/tmp/cargo \
+          --env=RUSTUP_HOME=/tmp/rustup \
           --env=CARGO_TARGET_DIR=/tmp/build/target \
           org.gnome.Sdk//47 -c '
-            source $HOME/.cargo/env &&
+            source /tmp/cargo/env &&
             cargo build --release
           '
 
