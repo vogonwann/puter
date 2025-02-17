@@ -31,7 +31,7 @@ modules:
   - name: rust-deps
     buildsystem: simple
     build-commands:
-      - cargo --version
+      - cargo build --release
     sources:
       - type: git
         url: https://github.com/flatpak/flatpak-builder-tools
@@ -41,10 +41,10 @@ modules:
     buildsystem: simple
     build-commands:
       - install -Dm755 bin/puter /app/bin/puter
-      - install -Dm644 share/applications/lol.janjic.puter.desktop /app/share/applications/lol.janjic.puter.desktop
-      - install -Dm644 share/metainfo/lol.janjic.puter.metainfo.xml /app/share/metainfo/lol.janjic.puter.metainfo.xml
-      - install -Dm644 share/icons/hicolor/scalable/apps/lol.janjic.puter.svg /app/share/icons/hicolor/scalable/apps/lol.janjic.puter.svg
-      - install -Dm644 share/locale/sr_RS/LC_MESSAGES/puter.mo /app/share/locale/sr_RS/LC_MESSAGES/puter.mo
+      - install -Dm644 lol.janjic.puter.desktop /app/share/applications/lol.janjic.puter.desktop
+      - install -Dm644 lol.janjic.puter.metainfo.xml /app/share/metainfo/lol.janjic.puter.metainfo.xml
+      - install -Dm644 data/icons/hicolor/scalable/apps/lol.janjic.puter.svg /app/share/icons/hicolor/scalable/apps/lol.janjic.puter.svg
+      - install -Dm644 po/sr_RS/LC_MESSAGES/puter.mo /app/share/locale/sr_RS/LC_MESSAGES/puter.mo
     sources:
       - type: dir
-        path: flatpak-build
+        path: .
