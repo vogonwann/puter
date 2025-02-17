@@ -10,11 +10,15 @@ jobs:
   flatpak:
     runs-on: ubuntu-latest
     container:
-      image: bilelmoussaoui/flatpak-github-actions:gnome-42
+      image: rust:latest
       options: --privileged
     steps:
     - uses: actions/checkout@v4
     
+    - name: Install Flatpak
+      run: |
+        apt-get update && apt-get install -y flatpak
+
     - name: Setup environment
       run: |
         mkdir -p /github/home/.local/share/flatpak
