@@ -42,8 +42,8 @@ jobs:
           --env=RUSTUP_HOME=/usr/lib/sdk/rust-stable/rustup \
           --env=CARGO_TARGET_DIR=/tmp/build/target \
           org.gnome.Sdk//47 -c '
-            /usr/lib/sdk/rust-stable/bin/rustc --version &&
-            /usr/lib/sdk/rust-stable/bin/cargo build --release
+            rustc --version &&
+            cargo build --release
           '
 
     - name: Debug Cargo Build Output
