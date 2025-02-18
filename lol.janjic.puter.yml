@@ -2,10 +2,12 @@ app-id: lol.janjic.puter
 runtime: org.gnome.Platform
 runtime-version: '47'
 sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable//23.08
 
 command: puter
 build-options:
-  append-path: /app/bin
+  append-path: /usr/lib/sdk/rust-stable/bin
   env:
     CARGO_HOME: /app/cargo
     RUSTFLAGS: "--remap-path-prefix /app/cargo=/app"
@@ -26,19 +28,6 @@ finish-args:
   - --share=network
 
 modules:
-  - name: rust
-    buildsystem: simple
-    build-commands:
-      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-      - source /root/.cargo/env
-      - rustup default stable
-      - rustup target add x86_64-unknown-linux-gnu
-      - install -Dm755 /root/.cargo/bin/* /app/bin/
-    sources:
-      - type: shell
-        commands:
-          - echo "Installing Rust"
-
   - name: puter
     buildsystem: simple
     build-commands:
