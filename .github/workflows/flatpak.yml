@@ -22,12 +22,6 @@ jobs:
         export XDG_DATA_HOME=/github/home/.local/share
         flatpak --system remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
-    - name: Install SDK and Rust Extension
-      run: |
-        flatpak --system install -y flathub org.gnome.Platform//47
-        flatpak --system install -y flathub org.gnome.Sdk//47
-        flatpak --system install -y flathub org.freedesktop.Sdk.Extension.rust-stable//23.08
-
     - name: Build project
       run: |
         mkdir -p /tmp/build/target
@@ -37,12 +31,11 @@ jobs:
           --runtime=org.gnome.Sdk//47 \
           --filesystem=host \
           --share=network \
-          --env=PATH=$PATH:/usr/bin:/bin:/usr/lib/sdk/rust-stable/bin \
-          --env=CARGO_HOME=/usr/lib/sdk/rust-stable/cargo \
-          --env=RUSTUP_HOME=/usr/lib/sdk/rust-stable/rustup \
+          --env=PATH=$PATH:/usr/bin:/bin:/app/bin \
+          --env=CARGO_HOME=/app/cargo \
+          --env=RUSTUP_HOME=/app/rustup \
           --env=CARGO_TARGET_DIR=/tmp/build/target \
           org.gnome.Sdk//47 -c '
-            source /usr/lib/sdk/rust-stable/env &&
             cargo build --release
           '
 

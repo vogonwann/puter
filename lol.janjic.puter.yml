@@ -2,12 +2,10 @@ app-id: lol.janjic.puter
 runtime: org.gnome.Platform
 runtime-version: '47'
 sdk: org.gnome.Sdk
-sdk-extensions:
-  - org.freedesktop.Sdk.Extension.rust-stable//23.08
 
 command: puter
 build-options:
-  append-path: /usr/lib/sdk/rust-stable/bin
+  append-path: /app/bin
   env:
     CARGO_HOME: /app/cargo
     RUSTFLAGS: "--remap-path-prefix /app/cargo=/app"
@@ -28,18 +26,23 @@ finish-args:
   - --share=network
 
 modules:
-  - name: rust-deps
+  - name: rust
     buildsystem: simple
     build-commands:
-      - cargo build --release
+      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      - source /root/.cargo/env
+      - rustup default stable
+      - rustup target add x86_64-unknown-linux-gnu
+      - install -Dm755 /root/.cargo/bin/* /app/bin/
     sources:
-      - type: git
-        url: https://github.com/flatpak/flatpak-builder-tools
-        branch: master
+      - type: shell
+        commands:
+          - echo "Installing Rust"
 
   - name: puter
     buildsystem: simple
     build-commands:
+      - cargo build --release
       - install -Dm755 target/release/puter /app/bin/puter
       - install -Dm644 lol.janjic.puter.desktop /app/share/applications/lol.janjic.puter.desktop
       - install -Dm644 lol.janjic.puter.metainfo.xml /app/share/metainfo/lol.janjic.puter.metainfo.xml
