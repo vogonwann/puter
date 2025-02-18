@@ -22,6 +22,12 @@ jobs:
         export XDG_DATA_HOME=/github/home/.local/share
         flatpak --system remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
+    - name: Install SDK and Rust Extension
+      run: |
+        flatpak --system install -y flathub org.gnome.Platform//47
+        flatpak --system install -y flathub org.gnome.Sdk//47
+        flatpak --system install -y flathub org.freedesktop.Sdk.Extension.rust-stable//23.08
+
     - name: Build project
       run: |
         mkdir -p /tmp/build/target
