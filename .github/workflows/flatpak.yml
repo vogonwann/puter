@@ -42,7 +42,6 @@ jobs:
           --env=RUSTUP_HOME=/usr/lib/sdk/rust-stable/rustup \
           --env=CARGO_TARGET_DIR=/tmp/build/target \
           org.gnome.Sdk//47 -c '
-            source /usr/lib/sdk/rust-stable/env &&
             cargo build --release
           '
 
