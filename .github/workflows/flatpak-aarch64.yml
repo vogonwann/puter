@@ -23,15 +23,26 @@ jobs:
           target: aarch64-unknown-linux-gnu
           override: true
 
-      - name: Install dependencies
+      - name: Configure ARM64 repositories
         run: |
           # Add ARM64 architecture
           sudo dpkg --add-architecture arm64
           
+          # Configure ARM64 repositories
+          sudo tee /etc/apt/sources.list.d/arm64.list << EOF
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main restricted
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy universe
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates universe
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security universe
+          EOF
+          
           # Update package lists
           sudo apt-get update
-          
-          # Install required packages
+
+      - name: Install dependencies
+        run: |
           sudo apt-get install -y \
             pkg-config \
             gcc-aarch64-linux-gnu \
