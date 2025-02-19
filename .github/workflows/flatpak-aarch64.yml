@@ -48,23 +48,20 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install -y \
             pkg-config \
             gcc-aarch64-linux-gnu \
             g++-aarch64-linux-gnu \
             libglib2.0-dev \
-            libgirepository1.0-dev \
             libglib2.0-dev:arm64 \
-            libgirepository1.0-dev:arm64 \
             libcairo2-dev:arm64 \
             libpango1.0-dev:arm64 \
             libatk1.0-dev:arm64 \
             libgdk-pixbuf2.0-dev:arm64 \
             libgtk-4-dev:arm64 \
             libadwaita-1-dev:arm64 \
-            --no-install-recommends \
-            --no-install-suggests \
-            --ignore-missing
+            --no-install-recommends
 
       - name: Configure pkg-config for cross-compilation
         run: |
