@@ -26,13 +26,25 @@ jobs:
           # Add ARM64 architecture
           sudo dpkg --add-architecture arm64
           
-          # Configure Ubuntu Ports repositories
-          sudo tee /etc/apt/sources.list.d/arm64.list << EOF
+          # Remove existing sources
+          sudo rm -f /etc/apt/sources.list.d/*
+          sudo truncate -s0 /etc/apt/sources.list
+          
+          # Configure repositories for both architectures
+          sudo tee /etc/apt/sources.list << EOF
+          # AMD64 repositories
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse
+          
+          # ARM64 repositories
           deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy main restricted universe multiverse
           deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-updates main restricted universe multiverse
           deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-security main restricted universe multiverse
           EOF
           
+          # Update package lists
+          sudo apt-get clean
           sudo apt-get update
 
       - name: Install dependencies
