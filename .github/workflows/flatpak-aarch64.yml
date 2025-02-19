@@ -16,91 +16,57 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
+          targets: aarch64-unknown-linux-gnu
+
+      - name: Install cross-compilation tools
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
           target: aarch64-unknown-linux-gnu
-          override: true
+          command: build
+          args: --release
 
       - name: Configure ARM64 repositories
         run: |
           # Add ARM64 architecture
           sudo dpkg --add-architecture arm64
           
-          # Remove existing sources
-          sudo rm -f /etc/apt/sources.list.d/*
-          sudo truncate -s0 /etc/apt/sources.list
-          
-          # Configure Ubuntu Ports repositories only
-          sudo tee /etc/apt/sources.list << EOF
-          deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse
-          deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse
-          deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse
+          # Configure Ubuntu Ports repositories
+          sudo tee /etc/apt/sources.list.d/arm64.list << EOF
           deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy main restricted universe multiverse
           deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-updates main restricted universe multiverse
           deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-security main restricted universe multiverse
           EOF
           
-          # Update package lists
-          sudo apt-get clean
           sudo apt-get update
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          # Install host architecture development files
+          # Install GTK4 and Libadwaita development files for ARM64
           sudo apt-get install -y \
             pkg-config \
             gcc-aarch64-linux-gnu \
             g++-aarch64-linux-gnu \
-            libglib2.0-dev \
-            --no-install-recommends
-          
-          # Install ARM64 development files without introspection
-          sudo apt-get install -y \
-            libglib2.0-0:arm64 \
             libglib2.0-dev:arm64 \
-            libcairo2:arm64 \
             libcairo2-dev:arm64 \
-            libpango-1.0-0:arm64 \
             libpango1.0-dev:arm64 \
-            libatk1.0-0:arm64 \
             libatk1.0-dev:arm64 \
-            libgdk-pixbuf2.0-0:arm64 \
+            libgdk-pixbuf-2.0-0:arm64 \
             libgdk-pixbuf2.0-dev:arm64 \
-            libgtk-4-0:arm64 \
+            libgtk-4-1:arm64 \
             libgtk-4-dev:arm64 \
             libadwaita-1-0:arm64 \
             libadwaita-1-dev:arm64 \
-            --no-install-recommends \
-            --no-install-suggests
-
-      - name: Configure pkg-config for cross-compilation
-        run: |
-          # Set up cross-compilation environment variables
-          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
-          echo "PKG_CONFIG_SYSROOT_DIR=/usr" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig" >> $GITHUB_ENV
-          echo "PKG_CONFIG_LIBDIR=/usr/lib/aarch64-linux-gnu/pkgconfig" >> $GITHUB_ENV
-          echo "PKG_CONFIG=pkg-config" >> $GITHUB_ENV
-          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUSTFLAGS=-C link-arg=-lglib-2.0 -C link-arg=-lgobject-2.0" >> $GITHUB_ENV
+            --no-install-recommends
 
       - name: Build project
         run: |
-          export PKG_CONFIG_ALLOW_CROSS=1
-          export PKG_CONFIG_SYSROOT_DIR=/usr
-          export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
-          export PKG_CONFIG_LIBDIR=/usr/lib/aarch64-linux-gnu/pkgconfig
-          export PKG_CONFIG=pkg-config
           cargo build --release --target aarch64-unknown-linux-gnu
 
-      - name: Rename output file
-        run: mv target/aarch64-unknown-linux-gnu/release/puter target/aarch64-unknown-linux-gnu/release/puter_aarch64
-
-      - name: Upload binaries
+      - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
           name: libadwaita-gtk4-app-aarch64-unknown-linux-gnu
-          path: target/aarch64-unknown-linux-gnu/release/puter_aarch64
+          path: target/aarch64-unknown-linux-gnu/release/puter
