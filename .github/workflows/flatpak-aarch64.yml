@@ -11,7 +11,8 @@ on:
 jobs:
   build:
     name: Build for aarch64-unknown-linux-gnu
-    runs-on: ubuntu-latest
+    # Specify Ubuntu 22.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,7 +26,9 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # Add ARM64 architecture and configure repositories
           sudo dpkg --add-architecture arm64
+          sudo sed -i 's/noble/jammy/g' /etc/apt/sources.list
           sudo apt-get update
           sudo apt-get install -y \
             pkg-config \
@@ -49,7 +52,7 @@ jobs:
       - name: Configure pkg-config for cross-compilation
         run: |
           echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
-          echo "PKG_CONFIG_SYSROOT_DIR=/usr/aarch64-linux-gnu" >> $GITHUB_ENV
+          echo "PKG_CONFIG_SYSROOT_DIR=/usr" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
           echo "PKG_CONFIG_LIBDIR=/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
           echo "PKG_CONFIG=pkg-config" >> $GITHUB_ENV
