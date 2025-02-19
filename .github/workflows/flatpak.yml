@@ -36,11 +36,7 @@ jobs:
             libsoup-3.0-dev \
             libgirepository1.0-dev \
             gir1.2-gtk-4.0 \
-            qemu-user-static \
-            libgobject-2.0-dev \
-            libgio2.0-dev \
-            libgmodule-2.0-dev \
-            libgthread-2.0-dev
+            qemu-user-static
 
       - name: Configure pkg-config for cross-compilation
         run: |
