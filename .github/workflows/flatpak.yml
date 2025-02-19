@@ -22,7 +22,7 @@ jobs:
       run: |
         docker buildx create --use
         docker buildx build --platform linux/${{ matrix.arch }} -t cross-compiler:${{ matrix.arch }} --load -f- . <<EOF
-        FROM debian:bookworm
+        FROM debian:bookworm-slim
         RUN dpkg --add-architecture arm64 && \
             apt-get update && \
             apt-get install -y \
@@ -45,8 +45,8 @@ jobs:
                 libcairo-gobject2:arm64 \
                 libvulkan-dev:arm64 \
                 libgraphene-1.0-dev:arm64 \
-                libgio2.0-dev:arm64 \
-                libgobject-2.0-dev:arm64 \
+                libgio-dev:arm64 \
+                libgobject-dev:arm64 \
                 libglib2.0-dev:arm64 && \
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
             source $HOME/.cargo/env && \
