@@ -17,6 +17,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        sudo dpkg --add-architecture arm64
         sudo apt-get update
         sudo apt-get install -y pkg-config libglib2.0-dev libcairo2-dev libgtk-4-dev libadwaita-1-dev gettext gettext-base gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
         libglib2.0-dev:arm64 libcairo2-dev:arm64 libgtk-4-dev:arm64 libadwaita-1-dev:arm64 libpango1.0-dev:arm64 libharfbuzz-dev:arm64 libgdk-pixbuf2.0-dev:arm64 \
