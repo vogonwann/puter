@@ -18,13 +18,10 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Log in to Docker Hub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-    - name: Build and push Docker image for cross-compilation
+    - name: Build Docker image for cross-compilation
       run: |
         docker buildx create --use
-        docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_USERNAME }}/cross-compiler --push -f- . <<EOF
+        docker buildx build --platform linux/amd64,linux/arm64 -t cross-compiler --load -f- . <<EOF
         FROM ubuntu:20.04
         RUN dpkg --add-architecture arm64 && \
             apt-get update && \
@@ -59,7 +56,7 @@ jobs:
 
     - name: Build project
       run: |
-        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace ${{ secrets.DOCKER_USERNAME }}/cross-compiler \
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace cross-compiler \
           bash -c "source $HOME/.cargo/env && \
                    mkdir -p .cargo && \
                    echo '[target.aarch64-unknown-linux-gnu]' > .cargo/config.toml && \
