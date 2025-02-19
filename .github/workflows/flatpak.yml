@@ -1,4 +1,4 @@
-name: Build Libadwaita GTK4 Rust App
+name: Build and Deploy Libadwaita GTK4 Rust App
 
 on:
   push:
@@ -16,15 +16,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build project
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: x86_64-unknown-linux-gnu
+          override: true
+
+      - name: Install dependencies
         run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/cross-rs/x86_64-unknown-linux-gnu:latest \
-            bash -c "apt-get update && \
-                     apt-get install -y pkg-config libglib2.0-dev libcairo2-dev libgtk-4-dev libadwaita-1-dev gettext gettext-base && \
-                     cargo build --release --target x86_64-unknown-linux-gnu"
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository -y ppa:ubuntu-desktop/gtk4
+          sudo add-apt-repository -y ppa:ubuntu-desktop/libadwaita
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libglib2.0-dev libcairo2-dev libgtk-4-dev libadwaita-1-dev gettext gettext-base
+
+      - name: Build project
+        run: cargo build --release --target x86_64-unknown-linux-gnu
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: libadwaita-gtk4-app-x86_64-unknown-linux-gnu
-          path: /workspace/target/x86_64-unknown-linux-gnu/release/*
+          path: target/x86_64-unknown-linux-gnu/release/*
