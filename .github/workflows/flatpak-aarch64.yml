@@ -61,8 +61,7 @@ jobs:
             libgdk-pixbuf2.0-dev:arm64 \
             libgtk-4-dev:arm64 \
             libadwaita-1-dev:arm64 \
-            gobject-introspection:arm64 \
-            libgirepository1.0-dev \
+            --no-install-recommends
 
       - name: Configure pkg-config for cross-compilation
         run: |
