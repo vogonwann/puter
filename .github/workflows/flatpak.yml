@@ -21,7 +21,7 @@ jobs:
     - name: Build Docker image for cross-compilation
       run: |
         docker buildx create --use
-        docker buildx build --platform linux/amd64,linux/arm64 -t cross-compiler --load -f- . <<EOF
+        docker buildx build --platform linux/${{ matrix.arch }} -t cross-compiler:${{ matrix.arch }} --load -f- . <<EOF
         FROM ubuntu:20.04
         RUN dpkg --add-architecture arm64 && \
             apt-get update && \
@@ -56,7 +56,7 @@ jobs:
 
     - name: Build project
       run: |
-        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace cross-compiler \
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace cross-compiler:${{ matrix.arch }} \
           bash -c "source $HOME/.cargo/env && \
                    mkdir -p .cargo && \
                    echo '[target.aarch64-unknown-linux-gnu]' > .cargo/config.toml && \
