@@ -22,7 +22,7 @@ jobs:
       run: |
         docker buildx create --use
         docker buildx build --platform linux/${{ matrix.arch }} -t cross-compiler:${{ matrix.arch }} --load -f- . <<EOF
-        FROM ubuntu:22.04
+        FROM debian:bullseye
         RUN dpkg --add-architecture arm64 && \
             apt-get update && \
             apt-get install -y \
@@ -41,7 +41,7 @@ jobs:
                 libadwaita-1-dev:arm64 \
                 libpango1.0-dev:arm64 \
                 libharfbuzz-dev:arm64 \
-                libgdk-pixbuf2.0-dev:arm64 \
+                libgdk-pixbuf-2.0-dev:arm64 \
                 libcairo-gobject2:arm64 \
                 libvulkan-dev:arm64 \
                 libgraphene-1.0-dev:arm64 \
