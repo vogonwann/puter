@@ -27,6 +27,12 @@ jobs:
         rustup default stable
         rustup target add ${{ matrix.arch }}-unknown-linux-gnu
 
+    - name: Configure Cargo for cross-compilation
+      run: |
+        mkdir -p .cargo
+        echo '[target.aarch64-unknown-linux-gnu]' > .cargo/config.toml
+        echo 'linker = "aarch64-linux-gnu-gcc"' >> .cargo/config.toml
+
     - name: Build project
       run: |
         mkdir -p /tmp/build/target
