@@ -28,18 +28,22 @@ jobs:
           # Add ARM64 architecture
           sudo dpkg --add-architecture arm64
           
-          # Remove any existing arm64 repository configurations
-          sudo rm -f /etc/apt/sources.list.d/*arm64*
+          # Remove existing sources
+          sudo rm -f /etc/apt/sources.list.d/*
+          sudo truncate -s0 /etc/apt/sources.list
           
-          # Configure ARM64 repositories using ports.ubuntu.com only
-          sudo tee /etc/apt/sources.list.d/arm64.list << EOF
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main restricted universe multiverse
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted universe multiverse
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-backports main restricted universe multiverse
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted universe multiverse
+          # Configure Ubuntu Ports repositories only
+          sudo tee /etc/apt/sources.list << EOF
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-updates main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-security main restricted universe multiverse
           EOF
           
           # Update package lists
+          sudo apt-get clean
           sudo apt-get update
 
       - name: Install dependencies
