@@ -15,29 +15,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
     - name: Build project
       run: |
-        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace multiarch/crossbuild:latest-${{ matrix.arch }} \
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace rustembedded/cross:${{ matrix.arch }}-unknown-linux-gnu \
           bash -c "apt-get update && \
                    apt-get install -y pkg-config libglib2.0-dev libcairo2-dev libgtk-4-dev libadwaita-1-dev gettext gettext-base && \
-                   source /usr/local/cargo/env && \
-                   rustup default stable && \
-                   rustup target add ${{ matrix.arch }}-unknown-linux-gnu && \
-                   mkdir -p .cargo && \
-                   echo '[target.${{ matrix.arch }}-unknown-linux-gnu]' > .cargo/config.toml && \
-                   echo 'linker = \"${{ matrix.arch }}-linux-gnu-gcc\"' >> .cargo/config.toml && \
-                   export CARGO_TARGET_DIR=/tmp/build/target && \
-                   export PKG_CONFIG_ALLOW_CROSS=1 && \
-                   export PKG_CONFIG_PATH=/usr/lib/${{ matrix.arch }}-linux-gnu/pkgconfig:/usr/share/pkgconfig && \
-                   export CC_${{ matrix.arch }}_unknown_linux_gnu=${{ matrix.arch }}-linux-gnu-gcc && \
-                   export CXX_${{ matrix.arch }}_unknown_linux_gnu=${{ matrix.arch }}-linux-gnu-g++ && \
                    cargo build --release --target ${{ matrix.arch }}-unknown-linux-gnu"
 
     - name: Upload Binary
       uses: actions/upload-artifact@v4
       with:
         name: puter-${{ matrix.arch }}
-        path: /tmp/build/target/${{ matrix.arch }}-unknown-linux-gnu/release/puter
+        path: /workspace/target/${{ matrix.arch }}-unknown-linux-gnu/release/puter
