@@ -35,8 +35,7 @@ jobs:
             gettext \
             gettext-base \
             gcc-aarch64-linux-gnu \
-            g++-aarch64-linux-gnu \
-            pkg-config-aarch64-linux-gnu
+            g++-aarch64-linux-gnu
 
       - name: Configure pkg-config for cross-compilation
         run: |
