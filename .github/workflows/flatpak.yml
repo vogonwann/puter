@@ -40,10 +40,15 @@ jobs:
 
       - name: Configure pkg-config for cross-compilation
         run: |
-          echo "export PKG_CONFIG_ALLOW_CROSS=1" >> $HOME/.bashrc
-          echo "export PKG_CONFIG_SYSROOT_DIR=/usr/aarch64-linux-gnu" >> $HOME/.bashrc
-          echo "export PKG_CONFIG_PATH=/usr/aarch64-linux-gnu/lib/pkgconfig:/usr/aarch64-linux-gnu/share/pkgconfig" >> $HOME/.bashrc
-          source $HOME/.bashrc
+          export PKG_CONFIG_ALLOW_CROSS=1
+          export PKG_CONFIG_SYSROOT_DIR=/usr/aarch64-linux-gnu
+          export PKG_CONFIG_PATH=/usr/aarch64-linux-gnu/lib/pkgconfig:/usr/aarch64-linux-gnu/share/pkgconfig
+          export PKG_CONFIG=aarch64-linux-gnu-pkg-config
+          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
+          echo "PKG_CONFIG_SYSROOT_DIR=/usr/aarch64-linux-gnu" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=/usr/aarch64-linux-gnu/lib/pkgconfig:/usr/aarch64-linux-gnu/share/pkgconfig" >> $GITHUB_ENV
+          echo "PKG_CONFIG=aarch64-linux-gnu-pkg-config" >> $GITHUB_ENV
+
 
       - name: Install Rust target
         run: rustup target add ${{ matrix.target }}
