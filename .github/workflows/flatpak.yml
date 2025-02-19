@@ -18,7 +18,9 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y pkg-config libglib2.0-dev libcairo2-dev libgtk-4-dev libadwaita-1-dev gettext gettext-base gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        sudo apt-get install -y pkg-config libglib2.0-dev libcairo2-dev libgtk-4-dev libadwaita-1-dev gettext gettext-base gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+        libglib2.0-dev:arm64 libcairo2-dev:arm64 libgtk-4-dev:arm64 libadwaita-1-dev:arm64 libpango1.0-dev:arm64 libharfbuzz-dev:arm64 libgdk-pixbuf2.0-dev:arm64 \
+        libcairo-gobject2:arm64 libvulkan-dev:arm64 libgraphene-1.0-dev:arm64 libgio2.0-dev:arm64 libgobject-2.0-dev:arm64 libglib2.0-dev:arm64
 
     - name: Install Rust
       run: |
