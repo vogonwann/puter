@@ -1,29 +1,37 @@
-name: Build and Deliver Binaries
+name: Build Libadwaita GTK4 Rust App
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
+    name: Build for ${{ matrix.target }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [x86_64, aarch64]
+        target: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu]
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Build project
-      run: |
-        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace rustembedded/cross:${{ matrix.arch }}-unknown-linux-gnu \
-          bash -c "apt-get update && \
-                   apt-get install -y pkg-config libglib2.0-dev libcairo2-dev libgtk-4-dev libadwaita-1-dev gettext gettext-base && \
-                   cargo build --release --target ${{ matrix.arch }}-unknown-linux-gnu"
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            libgtk-4-dev \
+            libadwaita-1-dev \
+            pkg-config \
+            gettext \
+            gcc-aarch64-linux-gnu
 
-    - name: Upload Binary
-      uses: actions/upload-artifact@v4
-      with:
-        name: puter-${{ matrix.arch }}
-        path: /workspace/target/${{ matrix.arch }}-unknown-linux-gnu/release/puter
+      - name: Install Rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Build project
+        run: |
+          cargo build --release --target=${{ matrix.target }}
