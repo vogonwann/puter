@@ -21,13 +21,6 @@ jobs:
         with:
           targets: aarch64-unknown-linux-gnu
 
-      - name: Install cross-compilation tools
-        uses: houseabsolute/actions-rust-cross@v0
-        with:
-          target: aarch64-unknown-linux-gnu
-          command: build
-          args: --release
-
       - name: Configure ARM64 repositories
         run: |
           # Add ARM64 architecture
@@ -45,28 +38,17 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          # Install cross-compilation tools and host architecture dependencies
           sudo apt-get install -y \
             pkg-config \
             gcc-aarch64-linux-gnu \
             g++-aarch64-linux-gnu \
             libglib2.0-dev \
-            --no-install-recommends
-
-          # Install ARM64 development files
-          sudo apt-get install -y \
-            libglib2.0-0:arm64 \
-            libglib2.0-bin:arm64 \
             libglib2.0-dev:arm64 \
-            libcairo2:arm64 \
             libcairo2-dev:arm64 \
-            libpango-1.0-0:arm64 \
             libpango1.0-dev:arm64 \
-            libatk1.0-0:arm64 \
             libatk1.0-dev:arm64 \
-            libgtk-4-1:arm64 \
+            libgdk-pixbuf2.0-dev:arm64 \
             libgtk-4-dev:arm64 \
-            libadwaita-1-0:arm64 \
             libadwaita-1-dev:arm64 \
             --no-install-recommends
 
@@ -98,13 +80,20 @@ jobs:
 
       - name: Build project
         env:
+          PKG_CONFIG: "/usr/bin/pkg-config"
           PKG_CONFIG_ALLOW_CROSS: "1"
-          PKG_CONFIG_PATH: "/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/share/pkgconfig"
-          PKG_CONFIG_LIBDIR: "/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/share/pkgconfig"
+          PKG_CONFIG_PATH: "/usr/lib/aarch64-linux-gnu/pkgconfig"
+          PKG_CONFIG_LIBDIR: "/usr/lib/aarch64-linux-gnu/pkgconfig"
           PKG_CONFIG_SYSROOT_DIR: "/usr"
           CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: "aarch64-linux-gnu-gcc"
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "-C link-arg=-lglib-2.0"
         run: |
-          cargo build --release --target aarch64-unknown-linux-gnu
+          # Verify pkg-config can find glib-2.0
+          pkg-config --list-all | grep glib
+          pkg-config --cflags --libs glib-2.0
+          
+          # Build the project
+          cargo build --release --target aarch64-unknown-linux-gnu -vv
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
