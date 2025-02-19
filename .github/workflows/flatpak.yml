@@ -14,14 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-musl]
+        target: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Build project
         run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace messense/rust-musl-cross:${{ matrix.target }} \
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace messense/cross:${{ matrix.target }} \
             bash -c "apt-get update && \
                      apt-get install -y pkg-config libglib2.0-dev libcairo2-dev libgtk-4-dev libadwaita-1-dev gettext gettext-base && \
                      cargo build --release --target ${{ matrix.target }}"
