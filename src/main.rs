@@ -59,14 +59,47 @@ fn init_i18n() {
     println!("Test translation of 'Add': {}", gettext("Add"));
 }
 
-fn main() -> glib::ExitCode {
-    init_i18n();
+fn init_styles() -> Option<()> {
+    let display = gdk::Display::default()?;
+    
+    let provider = gtk::CssProvider::new();
+    provider.load_from_data(
+        ".bought-item {
+            background-color: alpha(@success_color, 0.15);
+            border: 1px solid alpha(@success_color, 0.3);
+            border-radius: 6px;
+            padding: 6px;
+            margin: 3px;
+        }"
+    );
 
+    gtk::style_context_add_provider_for_display(
+        &display,
+        &provider,
+        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
+
+    Some(())
+}
+
+fn main() -> glib::ExitCode {
+    // Initialize gettext first
+    init_i18n();
+    
+    // Create and initialize the application
     let application = adw::Application::builder()
         .application_id(APP_ID)
         .build();
+    
+    // Connect to the activate signal
+    application.connect_activate(|app| {
+        // Initialize styles after GTK is running
+        init_styles();
+        // Build the UI
+        build_ui(app);
+    });
 
-    application.connect_activate(build_ui);
+    // Run the application
     application.run()
 }
 
@@ -190,7 +223,7 @@ fn build_ui(app: &adw::Application) {
         .build();
 
     let main_stack = gtk::Stack::new();
-    new_button.connect_clicked(clone!(@weak main_stack => move |_| {
+    new_button.connect_clicked(glib::clone!(@weak main_stack => move |_| {
         main_stack.set_visible_child_name("new-list");
     }));
 
@@ -333,7 +366,7 @@ fn add_list_row(lists_box: &gtk::ListBox, list: &ShoppingList) {
         .build();
 
     // Delete button handler
-    delete_button.connect_clicked(clone!(@weak lists_box, @weak row, @strong list => move |_| {
+    delete_button.connect_clicked(glib::clone!(@weak lists_box, @weak row, @strong list => move |_| {
         // Show confirmation dialog
         let dialog = gtk::MessageDialog::builder()
             .modal(true)
@@ -347,7 +380,7 @@ fn add_list_row(lists_box: &gtk::ListBox, list: &ShoppingList) {
             dialog.set_transient_for(Some(&window));
         }
 
-        dialog.connect_response(clone!(@weak lists_box, @weak row, @strong list => move |dialog, response| {
+        dialog.connect_response(glib::clone!(@weak lists_box, @weak row, @strong list => move |dialog, response| {
             if response == gtk::ResponseType::Ok {
                 // Delete the file
                 let mut path = get_data_dir();
@@ -404,7 +437,7 @@ fn add_list_row(lists_box: &gtk::ListBox, list: &ShoppingList) {
     lists_box.append(&row);
 
     // When edit button is clicked, open the list in edit mode
-    edit_button.connect_clicked(clone!(@weak lists_box, @strong list => move |_| {
+    edit_button.connect_clicked(glib::clone!(@weak lists_box, @strong list => move |_| {
         if let Some(window) = lists_box.root().and_then(|root| root.downcast::<adw::ApplicationWindow>().ok()) {
             if let Some(content) = window.content() {
                 if let Some(stack) = content.last_child() {
@@ -475,6 +508,11 @@ fn build_new_list_view(stack: &gtk::Stack, existing_list: Option<&ShoppingList>)
     if let Some(list) = existing_list {
         for item in &list.items {
             let row = gtk::ListBoxRow::new();
+            // Add bought-item class if the item was previously bought
+            if item.bought {
+                row.add_css_class("bought-item");
+            }
+            
             let item_box = gtk::Box::builder()
                 .orientation(gtk::Orientation::Horizontal)
                 .spacing(6)
@@ -545,15 +583,17 @@ fn build_new_list_view(stack: &gtk::Stack, existing_list: Option<&ShoppingList>)
                 }
             };
 
-            check_button.connect_toggled(clone!(@weak cost_entry, @weak cost_label, @weak items, @weak label => move |check| {
+            check_button.connect_toggled(glib::clone!(@weak cost_entry, @weak cost_label, @weak items, @weak label, @weak row => move |check| {
                 let is_active = check.is_active();
                 if is_active {
                     cost_entry.set_visible(true);
                     cost_label.set_visible(false);
                     cost_entry.grab_focus();
+                    row.add_css_class("bought-item"); // Add this line
                 } else {
                     cost_entry.set_visible(false);
                     cost_label.set_visible(true);
+                    row.remove_css_class("bought-item"); // Add this line
                 }
                 
                 let mut items = items.borrow_mut();
@@ -574,13 +614,13 @@ fn build_new_list_view(stack: &gtk::Stack, existing_list: Option<&ShoppingList>)
 
             let click_controller = gtk::GestureClick::new();
             cost_label.add_controller(click_controller.clone());
-            click_controller.connect_pressed(clone!(@weak cost_entry, @weak cost_label => move |_, _, _, _| {
+            click_controller.connect_pressed(glib::clone!(@weak cost_entry, @weak cost_label => move |_, _, _, _| {
                 cost_entry.set_visible(true);
                 cost_label.set_visible(false);
                 cost_entry.grab_focus();
             }));
 
-            delete_button.connect_clicked(clone!(@weak list_box, @weak row, @weak items, @weak label => move |_| {
+            delete_button.connect_clicked(glib::clone!(@weak list_box, @weak row, @weak items, @weak label => move |_| {
                 let mut items = items.borrow_mut();
                 if let Some(index) = items.iter().position(|i| i.name == label.label()) {
                     items.remove(index);
@@ -685,15 +725,17 @@ fn build_new_list_view(stack: &gtk::Stack, existing_list: Option<&ShoppingList>)
                     }
                 };
 
-                check_button.connect_toggled(clone!(@weak cost_entry, @weak cost_label, @weak items, @weak label => move |check| {
+                check_button.connect_toggled(clone!(@weak cost_entry, @weak cost_label, @weak items, @weak label, @weak row => move |check| {
                     let is_active = check.is_active();
                     if is_active {
                         cost_entry.set_visible(true);
                         cost_label.set_visible(false);
                         cost_entry.grab_focus();
+                        row.add_css_class("bought-item"); // Add this line
                     } else {
                         cost_entry.set_visible(false);
                         cost_label.set_visible(true);
+                        row.remove_css_class("bought-item"); // Add this line
                     }
                     
                     let mut items = items.borrow_mut();
@@ -745,12 +787,12 @@ fn build_new_list_view(stack: &gtk::Stack, existing_list: Option<&ShoppingList>)
     };
 
     // Connect Add button
-    add_button.connect_clicked(clone!(@strong add_item => move |_| {
+    add_button.connect_clicked(glib::clone!(@strong add_item => move |_| {
         add_item();
     }));
 
     // Connect Enter key
-    item_entry.connect_activate(clone!(@strong add_item => move |_| {
+    item_entry.connect_activate(glib::clone!(@strong add_item => move |_| {
         add_item();
     }));
 
@@ -765,7 +807,7 @@ fn build_new_list_view(stack: &gtk::Stack, existing_list: Option<&ShoppingList>)
         .halign(gtk::Align::End)
         .build();
 
-    save_button.connect_clicked(clone!(@weak stack, @weak items => move |_| {
+    save_button.connect_clicked(glib::clone!(@weak stack, @weak items => move |_| {
         let items = items.borrow();
         let total_cost: f64 = items.iter()
             .filter_map(|item| item.cost)
@@ -810,4 +852,4 @@ fn build_new_list_view(stack: &gtk::Stack, existing_list: Option<&ShoppingList>)
 
     box_.append(&save_button);
     box_
-} 
+}
