@@ -3,7 +3,7 @@ pub mod new_list_view;
 
 use adw::prelude::*;
 use gettextrs::gettext;
-use gtk::{self, gdk, glib};
+use gtk::{self, gdk, gio, glib};
 
 pub fn build_ui(app: &adw::Application) {
     println!("Starting build_ui function");
@@ -69,7 +69,34 @@ pub fn build_ui(app: &adw::Application) {
         main_stack.set_visible_child_name("new-list");
     }));
 
+    // Add menu button to header bar
+    let menu_button = gtk::MenuButton::builder()
+        .icon_name("open-menu-symbolic")
+        .build();
+
+    let menu = gio::Menu::new();
+    menu.append(Some("About"), Some("app.about"));
+
+    let menu_model = gio::MenuModel::from(menu);
+    menu_button.set_menu_model(Some(&menu_model));
+
+    header_bar.pack_end(&menu_button);
     header_bar.pack_end(&new_button);
+
+    let about_action = gio::SimpleAction::new("about", None);
+    about_action.connect_activate(move |_, _| {
+        let about_dialog = gtk::AboutDialog::builder()
+            .program_name("Puter")
+            .logo_icon_name("lol.janjic.puter")
+            .version("1.0.0")
+            .copyright("© 2025 Ivan Janjić")
+            .license_type(gtk::License::MitX11)
+            .website("https://janjic.lol")
+            .authors(vec![String::from("Ivan Janjić")])
+            .build();
+        about_dialog.show();
+    });
+    app.add_action(&about_action);
 
     println!("Creating lists_view");
     let lists_view = lists_view::build_lists_view(&main_stack);
