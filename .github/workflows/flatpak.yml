@@ -51,6 +51,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: aarch64
+
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -70,7 +75,8 @@ jobs:
             gettext \
             gettext-base \
             gcc-aarch64-linux-gnu \
-            g++-aarch64-linux-gnu
+            g++-aarch64-linux-gnu \
+            qemu-user-static
 
       - name: Set up pkg-config for cross-compilation
         run: |
