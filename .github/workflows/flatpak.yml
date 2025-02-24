@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-x86_64:
     name: Build for x86_64-unknown-linux-gnu
     runs-on: ubuntu-latest
     steps:
@@ -43,3 +43,41 @@ jobs:
         with:
           name: libadwaita-gtk4-app-x86_64-unknown-linux-gnu
           path: target/x86_64-unknown-linux-gnu/release/puter_x86_64
+
+  build-aarch64:
+    name: Build for aarch64-unknown-linux-gnu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-unknown-linux-gnu
+          override: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            libglib2.0-dev \
+            libcairo2-dev \
+            libgtk-4-dev \
+            libadwaita-1-dev \
+            gettext \
+            gettext-base
+
+      - name: Build project
+        run: cargo build --release --target aarch64-unknown-linux-gnu
+
+      - name: Rename output file
+        run: mv target/aarch64-unknown-linux-gnu/release/puter target/aarch64-unknown-linux-gnu/release/puter_aarch64
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: libadwaita-gtk4-app-aarch64-unknown-linux-gnu
+          path: target/aarch64-unknown-linux-gnu/release/puter_aarch64
