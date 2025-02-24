@@ -5,6 +5,8 @@ use adw::prelude::*;
 use gettextrs::gettext;
 use gtk::{self, gdk, gio, glib};
 
+use crate::tr;
+
 pub fn build_ui(app: &adw::Application) {
     println!("Starting build_ui function");
 
@@ -40,27 +42,17 @@ pub fn build_ui(app: &adw::Application) {
         println!("No display found");
     }
 
-    let window = adw::ApplicationWindow::builder()
-        .application(app)
-        .title(&gettext("Puter"))
-        .default_width(600)
-        .default_height(800)
-        .icon_name("lol.janjic.puter")
-        .build();
-
-    println!("Window created");
-
     let header_bar = adw::HeaderBar::new();
     let title = adw::WindowTitle::builder()
-        .title("Puter")
-        .subtitle("Shopping List Manager")
+        .title(&tr!("Puter"))
+        .subtitle(&tr!("Shopping List Manager"))
         .build();
 
     header_bar.set_title_widget(Some(&title));
 
     // Add new list button to header bar
     let new_button = gtk::Button::builder()
-        .label("New List")
+        .label(&tr!("New List"))
         .css_classes(vec!["suggested-action"])
         .build();
 
@@ -75,7 +67,7 @@ pub fn build_ui(app: &adw::Application) {
         .build();
 
     let menu = gio::Menu::new();
-    menu.append(Some("About"), Some("app.about"));
+    menu.append(Some(&tr!("About")), Some("app.about"));
 
     let menu_model = gio::MenuModel::from(menu);
     menu_button.set_menu_model(Some(&menu_model));
@@ -120,6 +112,14 @@ pub fn build_ui(app: &adw::Application) {
 
     content.append(&header_bar);
     content.append(&main_stack);
+
+    let window = adw::ApplicationWindow::builder()
+        .application(app)
+        .title(&tr!("Puter"))
+        .default_width(600)
+        .default_height(800)
+        .icon_name("lol.janjic.puter")
+        .build();
 
     window.set_content(Some(&content));
     window.present();

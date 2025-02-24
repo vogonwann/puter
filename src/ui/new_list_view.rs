@@ -2,7 +2,7 @@ use adw::prelude::*;
 use gtk::{self, glib, pango};
 use crate::data::{ShoppingItem, ShoppingList, save_list, get_data_dir};
 use crate::tr;
-use crate::styles::init_styles;// Add this line to import the load_css function
+use crate::styles::init_styles;
 
 pub fn format_currency(cost: f64) -> String {
     format!("${:.2}", cost)
@@ -189,12 +189,12 @@ pub fn build_new_list_view(stack: &gtk::Stack, existing_list: Option<&ShoppingLi
         .build();
 
     let cost_entry = gtk::Entry::builder()
-        .placeholder_text("Cost per piece...")
+        .placeholder_text(&tr!("Cost per piece..."))
         .width_request(100)
         .build();
 
     let quantity_entry = gtk::Entry::builder()
-        .placeholder_text("Quantity...")
+        .placeholder_text(&tr!("Quantity..."))
         .width_request(100)
         .build();
 
@@ -283,10 +283,15 @@ pub fn build_new_list_view(stack: &gtk::Stack, existing_list: Option<&ShoppingLi
     box_.append(&entry_box);
     box_.append(&scrolled);
 
+    let button_box = gtk::Box::builder()
+        .orientation(gtk::Orientation::Horizontal)
+        .spacing(6)
+        .halign(gtk::Align::End)
+        .build();
+
     let save_button = gtk::Button::builder()
         .label(&tr!("Save List"))
         .css_classes(vec!["suggested-action"])
-        .halign(gtk::Align::End)
         .build();
 
     save_button.connect_clicked(glib::clone!(@weak stack, @weak items, @strong list_id, @strong created_at => move |_button| {
@@ -327,7 +332,36 @@ pub fn build_new_list_view(stack: &gtk::Stack, existing_list: Option<&ShoppingLi
         }
     }));
 
-    box_.append(&save_button);
+    let cancel_button = gtk::Button::builder()
+        .label(&tr!("Cancel"))
+        .css_classes(vec!["destructive-action"])
+        .build();
+
+    cancel_button.connect_clicked(glib::clone!(@weak stack => move |_| {
+        if let Some(window) = stack.root().and_then(|root| root.downcast::<adw::ApplicationWindow>().ok()) {
+            if let Some(content) = window.content() {
+                if let Some(stack) = content.last_child() {
+                    if let Some(stack) = stack.downcast_ref::<gtk::Stack>() {
+                        if let Some(old_view) = stack.child_by_name("edit-list") {
+                            stack.remove(&old_view);
+                        }
+                        if let Some(old_view) = stack.child_by_name("lists") {
+                            stack.remove(&old_view);
+                        }
+                        
+                        let lists_view = crate::ui::lists_view::build_lists_view(stack);
+                        stack.add_named(&lists_view, Some("lists"));
+                        stack.set_visible_child_name("lists");
+                    }
+                }
+            }
+        }
+    }));
+
+    button_box.append(&cancel_button);
+    button_box.append(&save_button);
+
+    box_.append(&button_box);
 
     box_
 }

@@ -144,7 +144,7 @@ fn add_list_row(lists_box: &gtk::ListBox, list: &ShoppingList) {
             .buttons(gtk::ButtonsType::OkCancel)
             .message_type(gtk::MessageType::Warning)
             .text("Delete List")
-            .secondary_text("Are you sure you want to delete this list? This action cannot be undone.")
+            .secondary_text(&tr!("Are you sure you want to delete this list? This action cannot be undone."))
             .build();
 
         if let Some(window) = lists_box.root().and_then(|root| root.downcast::<gtk::Window>().ok()) {

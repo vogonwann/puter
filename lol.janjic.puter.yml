@@ -39,22 +39,17 @@ modules:
         - --share=network
     build-commands:
       - . /usr/lib/sdk/rust-stable/enable.sh
-      # Set up DNS configuration
-      # - mkdir -p ~/.cargo
-      # - echo "1.1.1.1" > ~/.cargo/dns.txt
-      # - mkdir -p /app/cargo
-      # Configure cargo to use custom DNS
-      - CARGO_HTTP_DEBUG=true CARGO_NET_GIT_FETCH_WITH_CLI=true cargo build --release --verbose
+      - cargo build --release --verbose
       # Create directories for translations
-      - mkdir -p po/sr_RS/LC_MESSAGES
+      - mkdir -p po/sr/LC_MESSAGES
       # Generate translations
-      - msgfmt -o po/sr_RS/LC_MESSAGES/puter.mo po/sr_RS/puter.po
+      - msgfmt -o po/sr/LC_MESSAGES/puter.mo po/sr/puter.po
       # Install files
       - install -Dm755 target/release/puter /app/bin/puter
       - install -Dm644 lol.janjic.puter.desktop /app/share/applications/lol.janjic.puter.desktop
       - install -Dm644 lol.janjic.puter.metainfo.xml /app/share/metainfo/lol.janjic.puter.metainfo.xml
       - install -Dm644 data/icons/hicolor/scalable/apps/lol.janjic.puter.svg /app/share/icons/hicolor/scalable/apps/lol.janjic.puter.svg
-      - install -Dm644 po/sr_RS/LC_MESSAGES/puter.mo /app/share/locale/sr_RS/LC_MESSAGES/puter.mo
+      - install -Dm644 po/sr/LC_MESSAGES/puter.mo /app/share/locale/sr/LC_MESSAGES/puter.mo
     sources:
       - type: dir
         path: .

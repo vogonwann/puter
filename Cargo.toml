@@ -10,4 +10,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 gettext-rs = "0.7"
-dirs = "4.0"
+dirs = "6.0"
+gettext = "0.4.0"
+locale = "0.2"
+glib = "0.10.0"
